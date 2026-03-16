@@ -32,24 +32,24 @@ print("Starting")
 def insert_fast():
     col = collection.with_options(write_concern=WriteConcern(w=1))
     insert = col.insert_one(request.get_json())
-    return str(insert.id)
+    return str(insert.inserted_id)
 
 @app.route("/insert-safe", methods=["POST"])
 def insert_safe():
     col = collection.with_options(write_concern=WriteConcern(w="majority"))
     insert = col.insert_one(request.get_json())
 
-    return str(insert.id)
+    return str(insert.inserted_id)
 
 @app.route("/count-tesla-primary", methods=["GET"])
 def count_tesla_primary():
-    col = collection.with_options(read_preference=ReadPreference.Primary)
+    col = collection.with_options(read_preference=ReadPreference.PRIMARY)
 
     return jsonify({"count": col.count_documents({"Make": "TESLA"})})
 
 @app.route("/count-bmw-secondary", methods=["GET"])
 def count_bmw_secondary():
-    col = collection.with_options(read_preference=ReadPreference.Secondary)
+    col = collection.with_options(read_preference=ReadPreference.SECONDARY)
 
     return jsonify({"count": col.count_documents({"Make": "BMW"})})
 
