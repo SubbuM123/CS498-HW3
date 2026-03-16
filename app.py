@@ -10,6 +10,7 @@ db = client.ev_db
 collection = db.vehicles
 
 app = Flask(__name__)
+print("Starting")
 
 # 1. Fast but Unsafe Write
 # Endpoint: POST /insert-fast
@@ -29,26 +30,28 @@ app = Flask(__name__)
 
 @app.route("/insert-fast", methods=["POST"])
 def insert_fast():
-    col = db.collection.with_options(write_concern=WriteConcern(w=1))
+    col = collection.with_options(write_concern=WriteConcern(w=1))
     insert = col.insert_one(request.get_json())
     return str(insert.id)
 
 @app.route("/insert-safe", methods=["POST"])
 def insert_safe():
-    col = db.collection.with_options(write_concern=WriteConcern(w="majority"))
+    col = collection.with_options(write_concern=WriteConcern(w="majority"))
     insert = col.insert_one(request.get_json())
 
     return str(insert.id)
 
 @app.route("/count-tesla-primary", methods=["GET"])
 def count_tesla_primary():
-    col = db.collection.with_options(read_preference=ReadPreference.Primary)
+    col = collection.with_options(read_preference=ReadPreference.Primary)
 
     return jsonify({"count": col.count_documents({"Make": "TESLA"})})
 
 @app.route("/count-bmw-secondary", methods=["GET"])
 def count_bmw_secondary():
-    col = db.collection.with_options(read_preference=ReadPreference.Secondary)
+    col = collection.with_options(read_preference=ReadPreference.Secondary)
 
     return jsonify({"count": col.count_documents({"Make": "BMW"})})
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
